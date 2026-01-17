@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>United Furniture Traders</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+<!-- HEADER -->
+<header class="bg-white shadow sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+    <h1 class="text-2xl font-bold">United Furniture Traders</h1>
+    <button id="menuBtn" class="md:hidden text-2xl">☰</button>
+    <nav class="hidden md:flex gap-6 font-semibold">
+      <a href="#home">Home</a>
+      <a href="#products">Products</a>
+      <a href="#admin">Admin</a>
+    </nav>
+  </div>
+</header>
+
+<!-- MOBILE MENU -->
+<div id="mobileMenu" class="hidden bg-white shadow px-4 py-2 md:hidden">
+  <a href="#home" class="block py-1">Home</a>
+  <a href="#products" class="block py-1">Products</a>
+  <a href="#admin" class="block py-1">Admin</a>
+</div>
+
+<!-- HERO / BANNER -->
+<section id="home" class="bg-cover bg-center h-64 flex items-center justify-center" style="background-image:url('https://images.unsplash.com/photo-1616628188340-6f206fdf21e2')">
+  <div class="bg-black bg-opacity-50 p-6 rounded text-center text-white">
+    <h2 class="text-3xl font-bold mb-2">Quality Furniture For Every Home</h2>
+    <a href="#products" class="bg-yellow-500 px-6 py-2 rounded font-bold">Shop Now</a>
+  </div>
+</section>
+
+<!-- SEARCH + CATEGORY -->
+<section class="max-w-7xl mx-auto px-4 py-6">
+  <input id="search" placeholder="Search furniture..." class="w-full border px-4 py-2 rounded" />
+  <div id="categories" class="flex gap-3 flex-wrap mt-4"></div>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products" class="max-w-7xl mx-auto px-4 py-6">
+  <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+</section>
+
+<!-- ADMIN PANEL -->
+<section id="admin" class="max-w-3xl mx-auto px-4 py-8 bg-white rounded shadow mb-10">
+  <h3 class="text-xl font-bold mb-4">Admin Panel (Add Product)</h3>
+  <input id="title" placeholder="Product Title" class="border w-full px-3 py-2 mb-2" />
+  <input id="price" placeholder="Price" class="border w-full px-3 py-2 mb-2" />
+  <input id="category" placeholder="Category" class="border w-full px-3 py-2 mb-2" />
+  <input id="sub" placeholder="Sub Category" class="border w-full px-3 py-2 mb-2" />
+  <input id="img" placeholder="Image URL" class="border w-full px-3 py-2 mb-2" />
+  <button onclick="addProduct()" class="bg-green-600 text-white px-4 py-2 rounded font-bold">Save Product</button>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-black text-white text-center py-4">© 2026 United Furniture Traders</footer>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.addProduct = async () => {
+  const product = {
+    title: title.value,
+    price: price.value,
+    category: category.value,
+    sub: sub.value,
+    img: img.value
+  };
+  await addDoc(collection(db, "products"), product);
+  alert("Product Added");
+  loadProducts();
+};
+
+async function loadProducts() {
+  productGrid.innerHTML = "";
+  const snap = await getDocs(collection(db, "products"));
+  snap.forEach(doc => {
+    const p = doc.data();
+    productGrid.innerHTML += `
+      <div class='bg-white rounded shadow'>
+        <img src='${p.img}' class='h-48 w-full object-cover rounded-t'>
+        <div class='p-4'>
+          <h4 class='font-bold'>${p.title}</h4>
+          <p class='text-sm'>${p.category} - ${p.sub}</p>
+          <p class='font-semibold mt-1'>£${p.price}</p>
+          <a target='_blank' href='https://wa.me/447000000000?text=I want ${p.title}' class='block mt-2 bg-green-500 text-white text-center py-2 rounded'>WhatsApp Order</a>
+        </div>
+      </div>`;
+  });
+}
+
+loadProducts();
+
+menuBtn.onclick = () => mobileMenu.classList.toggle("hidden");
+</script>
+
+</body>
+</html>
